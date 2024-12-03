@@ -25,6 +25,14 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// Scroll Progress Indicator
+window.addEventListener('scroll', () => {
+    const scrollProgress = document.querySelector('.scroll-progress');
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (window.pageYOffset / totalHeight) * 100;
+    scrollProgress.style.setProperty('--scroll', `${progress}%`);
+});
+
 // Navbar background change on scroll
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');
@@ -37,19 +45,21 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Reveal elements on scroll
-window.addEventListener('scroll', reveal);
+// Reveal elements on scroll with intersection observer
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
 
-function reveal() {
-    const reveals = document.querySelectorAll('.skill-card, .project-card');
-    
-    reveals.forEach(element => {
-        const windowHeight = window.innerHeight;
-        const elementTop = element.getBoundingClientRect().top;
-        const elementVisible = 150;
-        
-        if (elementTop < windowHeight - elementVisible) {
-            element.classList.add('active');
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            observer.unobserve(entry.target);
         }
     });
-}
+}, observerOptions);
+
+document.querySelectorAll('.skill-card, .project-card').forEach(element => {
+    observer.observe(element);
+});
